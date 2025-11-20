@@ -1,147 +1,13 @@
+calculator
+
+yml file
+
 dependencies:
-  flutter:
-    sdk: flutter
-
-  http: ^1.2.2
+  http: ^1.1.0
 
 
+main.dart
 
-
-import 'package:flutter/material.dart';
-import 'login.dart'; //
-
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: SimpleLogin(),    // First Screen
-    );
-  }
-}
-
-login.dart
-
-
-import 'dart:convert';
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-
-class SimpleLogin extends StatefulWidget {
-  @override
-  _SimpleLoginState createState() => _SimpleLoginState();
-}
-
-class _SimpleLoginState extends State<SimpleLogin> {
-  TextEditingController user = TextEditingController();
-  TextEditingController pass = TextEditingController();
-
-  Future<void> loginApi() async {
-    String username = user.text.trim();
-    String password = pass.text.trim();
-
-    var url = Uri.parse(
-      "https://example.com/login.php?user=$username&pass=$password",
-    );
-
-    var response = await http.get(url);
-
-    if (response.statusCode == 200) {
-      var data = jsonDecode(response.body);
-
-      if (data["status"] == "success") {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Welcome(username: username),
-          ),
-        );
-      } else {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text("Invalid Login")));
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("API Error: ${response.statusCode}")),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text("Simple Login", style: TextStyle(fontSize: 25)),
-            SizedBox(height: 20),
-
-            // Username
-            SizedBox(
-              width: 250,
-              child: TextField(
-                controller: user,
-                decoration: InputDecoration(
-                  labelText: "Username",
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-
-            SizedBox(height: 15),
-
-            // Password
-            SizedBox(
-              width: 250,
-              child: TextField(
-                controller: pass,
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: "Password",
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-
-            SizedBox(height: 20),
-
-            ElevatedButton(
-              onPressed: () {
-                loginApi();
-              },
-              child: Text("Login"),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class Welcome extends StatelessWidget {
-  final String username;
-  Welcome({required this.username});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Text(
-          "Hello, $username",
-          style: TextStyle(fontSize: 28),
-        ),
-      ),
-    );
-  }
-}
-
-
-calculator main.dart me dalne ka
 
 import 'package:flutter/material.dart';
 
@@ -247,3 +113,199 @@ class _SimpleCalculatorState extends State<SimpleCalculator> {
 }
 
 
+
+
+------------------------------------------------------------------------
+C
+
+
+
+api vala code 
+
+
+name: api_call
+
+
+dependencies:
+  dio: ^5.4.0
+
+
+main.dart
+
+import 'package:flutter/material.dart';
+import 'home.dart';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false, // Debug banner remove
+      title: 'API Call Demo',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const Home(), // Home Screen Load
+    );
+  }
+}
+
+
+model.dart
+
+class Content {
+  String? responseCode;
+  String? message;
+  String? status;
+  List<Product>? product;
+
+  Content({this.responseCode, this.message, this.status, this.product});
+
+  Content.fromJson(Map<String, dynamic> json) {
+    responseCode = json['response_code'];
+    message = json['message'];
+    status = json['status'];
+    if (json['Product'] != null) {
+      product = <Product>[];
+      json['Product'].forEach((v) {
+        product!.add(new Product.fromJson(v));
+      });
+    }
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['response_code'] = this.responseCode;
+    data['message'] = this.message;
+    data['status'] = this.status;
+    if (this.product != null) {
+      data['Product'] = this.product!.map((v) => v.toJson()).toList();
+    }
+    return data;
+  }
+}
+
+class Product {
+  String? id;
+  String? name;
+  String? catId;
+  String? value;
+  String? workoutId;
+
+  Product({this.id, this.name, this.catId, this.value, this.workoutId});
+
+  Product.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    name = json['name'];
+    catId = json['cat_id'];
+    value = json['value'];
+    workoutId = json['workout_id'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['id'] = this.id;
+    data['name'] = this.name;
+    data['cat_id'] = this.catId;
+    data['value'] = this.value;
+    data['workout_id'] = this.workoutId;
+    return data;
+  }
+}
+
+service.dart
+
+import 'model.dart';
+import 'package:dio/dio.dart';
+
+class service {
+  final Dio dio = Dio();
+
+  // Use HTTP not HTTPS
+  final baseUrl = "http://www.sparkstoideas.com/LJ/api/get_data_c/";
+
+  Future<Content> fetchData() async {
+    try {
+      final response = await dio.get(baseUrl);
+      if (response.statusCode == 200) {
+        return Content.fromJson(response.data);
+      } else {
+        throw Exception("Failed to load data");
+      }
+    } catch (e) {
+      throw Exception(e);
+    }
+  }
+}
+
+
+home.dart
+
+
+import 'package:api_call/model.dart';
+import 'package:api_call/service.dart';
+import 'package:flutter/material.dart';
+
+class Home extends StatefulWidget {
+  const Home({super.key});
+
+  @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+
+  late Future<Content> products;
+
+  void initState()
+  {
+    super.initState();
+    products = service().fetchData();
+  }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Products"),
+        centerTitle: true,
+      ),
+      body: FutureBuilder(
+          future: products,
+          builder: (context,snapshot){
+            if(snapshot.connectionState == ConnectionState.waiting)
+              {
+                return Center(child: CircularProgressIndicator());
+              }
+            if(snapshot.hasError)
+              {
+                return Center(child: Text("Error: ${snapshot.error}"));
+              }
+            if(!snapshot.hasData)
+              {
+                return Center(child: Text("No Data"));
+
+              }
+            else
+              {
+                final data = snapshot.data!.product;
+                return ListView.builder(
+                  itemCount: data!.length,
+                  itemBuilder: (context,index){
+                    final product = data[index];
+                    return Card(
+                      child: ListTile(
+                        title: Text(product.name!),
+                        subtitle: Text(product.catId!),
+                      ),
+                    );
+                  }
+                );
+              }
+          }
+          ),
+    );
+  }
+}
