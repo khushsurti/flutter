@@ -1,0 +1,249 @@
+dependencies:
+  flutter:
+    sdk: flutter
+
+  http: ^1.2.2
+
+
+
+
+import 'package:flutter/material.dart';
+import 'login.dart'; //
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: SimpleLogin(),    // First Screen
+    );
+  }
+}
+
+login.dart
+
+
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+class SimpleLogin extends StatefulWidget {
+  @override
+  _SimpleLoginState createState() => _SimpleLoginState();
+}
+
+class _SimpleLoginState extends State<SimpleLogin> {
+  TextEditingController user = TextEditingController();
+  TextEditingController pass = TextEditingController();
+
+  Future<void> loginApi() async {
+    String username = user.text.trim();
+    String password = pass.text.trim();
+
+    var url = Uri.parse(
+      "https://example.com/login.php?user=$username&pass=$password",
+    );
+
+    var response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+
+      if (data["status"] == "success") {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Welcome(username: username),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("Invalid Login")));
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("API Error: ${response.statusCode}")),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text("Simple Login", style: TextStyle(fontSize: 25)),
+            SizedBox(height: 20),
+
+            // Username
+            SizedBox(
+              width: 250,
+              child: TextField(
+                controller: user,
+                decoration: InputDecoration(
+                  labelText: "Username",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+
+            SizedBox(height: 15),
+
+            // Password
+            SizedBox(
+              width: 250,
+              child: TextField(
+                controller: pass,
+                obscureText: true,
+                decoration: InputDecoration(
+                  labelText: "Password",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+
+            SizedBox(height: 20),
+
+            ElevatedButton(
+              onPressed: () {
+                loginApi();
+              },
+              child: Text("Login"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class Welcome extends StatelessWidget {
+  final String username;
+  Welcome({required this.username});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Text(
+          "Hello, $username",
+          style: TextStyle(fontSize: 28),
+        ),
+      ),
+    );
+  }
+}
+
+
+calculator main.dart me dalne ka
+
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(
+    MaterialApp(home: SimpleCalculator(), debugShowCheckedModeBanner: false),
+  );
+}
+
+class SimpleCalculator extends StatefulWidget {
+  @override
+  _SimpleCalculatorState createState() => _SimpleCalculatorState();
+}
+
+class _SimpleCalculatorState extends State<SimpleCalculator> {
+  TextEditingController num1 = TextEditingController();
+  TextEditingController num2 = TextEditingController();
+
+  String result = "";
+
+  void calculate(String op) {
+    double n1 = double.tryParse(num1.text) ?? 0;
+    double n2 = double.tryParse(num2.text) ?? 0;
+
+    double res;
+
+    switch (op) {
+      case '+':
+        res = n1 + n2;
+        break;
+      case '-':
+        res = n1 - n2;
+        break;
+      case '*':
+        res = n1 * n2;
+        break;
+      case '/':
+        res = n2 != 0 ? n1 / n2 : double.infinity;
+        break;
+      default:
+        res = 0;
+    }
+
+    setState(() {
+      result = res.toString();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text("Simple Calculator")),
+      body: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: num1,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(labelText: "Enter Number 1"),
+            ),
+            TextField(
+              controller: num2,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(labelText: "Enter Number 2"),
+            ),
+
+            SizedBox(height: 20),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () => calculate('+'),
+                  child: Text("+"),
+                ),
+                ElevatedButton(
+                  onPressed: () => calculate('-'),
+                  child: Text("-"),
+                ),
+                ElevatedButton(
+                  onPressed: () => calculate('*'),
+                  child: Text("*"),
+                ),
+                ElevatedButton(
+                  onPressed: () => calculate('/'),
+                  child: Text("/"),
+                ),
+              ],
+            ),
+
+            SizedBox(height: 20),
+
+            Text(
+              "Result: $result",
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
