@@ -343,56 +343,49 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-
   late Future<Content> products;
 
-  void initState()
-  {
+  @override
+  void initState() {
     super.initState();
     products = service().fetchData();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Products"),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: Text("Products"), centerTitle: true),
       body: FutureBuilder(
-          future: products,
-          builder: (context,snapshot){
-            if(snapshot.connectionState == ConnectionState.waiting)
-              {
-                return Center(child: CircularProgressIndicator());
-              }
-            if(snapshot.hasError)
-              {
-                return Center(child: Text("Error: ${snapshot.error}"));
-              }
-            if(!snapshot.hasData)
-              {
-                return Center(child: Text("No Data"));
-
-              }
-            else
-              {
-                final data = snapshot.data!.product;
-                return ListView.builder(
-                  itemCount: data!.length,
-                  itemBuilder: (context,index){
-                    final product = data[index];
-                    return Card(
-                      child: ListTile(
-                        title: Text(product.name!),
-                        subtitle: Text(product.catId!),
-                      ),
-                    );
-                  }
-                );
-              }
+        future: products,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
           }
-          ),
+          if (snapshot.hasError) {
+            return Center(child: Text("Error: ${snapshot.error}"));
+          }
+          if (!snapshot.hasData) {
+            return Center(child: Text("No Data"));
+          }
+
+          final data = snapshot.data!.product;
+
+          return ListView.builder(
+            itemCount: data!.length,
+            itemBuilder: (context, index) {
+              final product = data[index];
+              return Card(
+                child: ListTile(
+                  title: Text(product.name ?? "No Name"),
+                  subtitle: Text(product.catId ?? "No Category"),
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }
+
 
